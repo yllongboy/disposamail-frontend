@@ -1,0 +1,36 @@
+<div class="dropdown-wrapper">
+  <button class="dropdown-trigger" (click)="toggle()" title="Switch inbox">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+  </button>
+
+  @if (isOpen) {
+    <div class="dropdown-panel">
+      <div class="dropdown-header">
+        <span class="dropdown-title">Your Inboxes</span>
+        <span class="dropdown-count">{{ inboxes.length }}</span>
+      </div>
+      <div class="dropdown-list">
+        @for (inbox of inboxes; track inbox.email) {
+          <div
+            class="dropdown-item"
+            [class.active]="inbox.email === activeEmail"
+            (click)="selectInbox(inbox.email)">
+            <div class="item-info">
+              <span class="item-local">{{ getLocalPart(inbox.email) }}</span>
+              <span class="item-domain">{{'@'}}{{ getDomain(inbox.email) }}</span>
+              <span class="item-time">{{ getRelativeTime(inbox.createdAt) }}</span>
+            </div>
+            <div class="item-actions">
+              @if (getUnreadCount(inbox.email) > 0) {
+                <span class="unread-badge">{{ getUnreadCount(inbox.email) }}</span>
+              }
+              <button class="btn-delete-item" (click)="deleteInbox($event, inbox.email)" title="Remove inbox">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

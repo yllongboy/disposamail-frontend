@@ -1,0 +1,234 @@
+:host {
+  display: block;
+}
+
+.email-list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* States */
+.state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  text-align: center;
+  color: var(--slate-500, #64748b);
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--slate-200, #e2e8f0);
+    border-top-color: var(--blue-500, #3b82f6);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    color: var(--slate-800, #1e293b);
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--slate-500, #64748b);
+    max-width: 24rem;
+  }
+
+  &.error p {
+    color: #dc2626;
+  }
+
+  .btn-retry {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--slate-200, #e2e8f0);
+    border-radius: 8px;
+    background: white;
+    color: var(--slate-700, #334155);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background 0.15s;
+
+    &:hover {
+      background: var(--slate-50, #f8fafc);
+    }
+  }
+}
+
+.empty-icon-box {
+  width: 64px;
+  height: 64px;
+  background: var(--slate-100, #f1f5f9);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: var(--slate-400, #94a3b8);
+}
+
+.email-highlight {
+  color: var(--blue-600, #2563eb);
+  font-weight: 500;
+}
+
+/* Table */
+.email-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-header {
+  display: none;
+  padding: 0.75rem 1.5rem;
+  background: rgba(248, 250, 252, 0.5);
+  border-bottom: 1px solid var(--slate-100, #f1f5f9);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--slate-500, #64748b);
+}
+
+.table-body {
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--slate-100, #f1f5f9);
+  cursor: pointer;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: rgba(239, 246, 255, 0.5);
+
+    .btn-row-delete {
+      opacity: 1;
+    }
+  }
+
+  &.unread {
+    background: rgba(239, 246, 255, 0.3);
+    .col-from, .col-subject {
+      font-weight: 600;
+      color: var(--slate-800, #1e293b);
+    }
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.col-indicator {
+  display: none;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--blue-500, #3b82f6);
+  display: block;
+}
+
+.col-from {
+  font-size: 0.875rem;
+  color: var(--slate-600, #475569);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.col-subject {
+  font-size: 0.875rem;
+  color: var(--slate-600, #475569);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .attachment-icon {
+    color: var(--slate-400, #94a3b8);
+    flex-shrink: 0;
+  }
+}
+
+.col-date {
+  font-size: 0.8125rem;
+  color: var(--slate-400, #94a3b8);
+}
+
+.col-actions {
+  display: none;
+}
+
+.btn-row-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--slate-400, #94a3b8);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.15s;
+
+  &:hover {
+    color: #dc2626;
+    background: #fef2f2;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Desktop: grid layout with columns */
+@media (min-width: 640px) {
+  .table-header {
+    display: grid;
+    grid-template-columns: 24px 1fr 2fr 100px 40px;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .table-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 2fr 100px 40px;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .col-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .col-date {
+    text-align: right;
+  }
+
+  .col-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+}
+

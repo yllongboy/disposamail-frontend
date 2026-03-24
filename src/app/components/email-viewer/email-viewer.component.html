@@ -1,0 +1,73 @@
+<div class="email-viewer">
+  @if (loading) {
+    <div class="viewer-state">
+      <div class="spinner"></div>
+      <p>Loading email...</p>
+    </div>
+  } @else if (errorMessage) {
+    <div class="viewer-state error">
+      <p>{{ errorMessage }}</p>
+    </div>
+  } @else if (email) {
+    <div class="viewer-content">
+      <!-- Subject -->
+      <h2 class="viewer-subject">{{ email.subject || '(No Subject)' }}</h2>
+
+      <!-- Sender info -->
+      <div class="sender-row">
+        <div class="sender-avatar">
+          {{ email.from.charAt(0).toUpperCase() }}
+        </div>
+        <div class="sender-info">
+          <p class="sender-from">{{ email.from }}</p>
+          <p class="sender-date">{{ email.date | date:'medium' }}</p>
+        </div>
+      </div>
+
+      @if (email.hasAttachments && email.attachments.length > 0) {
+        <div class="attachments">
+          @for (attachment of email.attachments; track attachment.filename) {
+            <span class="attachment-pill">
+              {{ attachment.filename }}
+              <span class="attachment-size">({{ formatBytes(attachment.size) }})</span>
+            </span>
+          }
+        </div>
+      }
+
+      <!-- View mode toggle -->
+      <div class="view-toggle">
+        <button
+          class="toggle-btn"
+          [class.active]="viewMode === 'html'"
+          (click)="setViewMode('html')"
+          [disabled]="!email.html">
+          HTML
+        </button>
+        <button
+          class="toggle-btn"
+          [class.active]="viewMode === 'text'"
+          (click)="setViewMode('text')"
+          [disabled]="!email.text">
+          Text
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div class="content-area">
+        @if (viewMode === 'html' && email.html && safeHtmlDoc) {
+          <iframe
+            class="html-frame"
+            sandbox=""
+            [srcdoc]="safeHtmlDoc"
+            title="Email HTML Content">
+          </iframe>
+        } @else if (viewMode === 'text' && email.text) {
+          <pre class="text-content">{{ email.text }}</pre>
+        } @else {
+          <div class="empty-content">No content available.</div>
+        }
+      </div>
+    </div>
+  }
+</div>

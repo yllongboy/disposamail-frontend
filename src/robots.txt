@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+# UPDATE: Set your production domain below
+Sitemap: https://your-domain.com/sitemap.xml
