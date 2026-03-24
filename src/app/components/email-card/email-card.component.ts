@@ -1,9 +1,10 @@
-import { Component, Input, Output, EventEmitter, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { InboxGeneratorComponent } from '../inbox-generator/inbox-generator.component';
 import { EmailListComponent } from '../email-list/email-list.component';
 import { EmailViewerComponent } from '../email-viewer/email-viewer.component';
 import { InboxDropdownComponent } from '../inbox-dropdown/inbox-dropdown.component';
+import { AdBannerComponent } from '../ad-banner/ad-banner.component';
 import { InboxStateService } from '../../services/inbox-state.service';
 import { StorageService } from '../../services/storage.service';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -17,7 +18,8 @@ import { SavedInbox, Inbox } from '../../models/email.model';
     InboxGeneratorComponent,
     EmailListComponent,
     EmailViewerComponent,
-    InboxDropdownComponent
+    InboxDropdownComponent,
+    AdBannerComponent
   ],
   templateUrl: './email-card.component.html',
   styleUrls: ['./email-card.component.scss']
@@ -33,6 +35,8 @@ export class EmailCardComponent {
   @Output() newInboxRequested = new EventEmitter<void>();
   @Output() inboxSelected = new EventEmitter<string>();
   @Output() inboxDeleted = new EventEmitter<string>();
+
+  @ViewChild(EmailListComponent) private emailList?: EmailListComponent;
 
   private storage = inject(StorageService);
   private inboxState = inject(InboxStateService);
@@ -114,13 +118,8 @@ export class EmailCardComponent {
   }
 
   refreshEmails(): void {
-    // EmailListComponent handles its own refresh via loadEmails()
-    // We trigger it by briefly toggling email, or using ViewChild
-    // For now, we'll use a simple approach: re-set the activeInbox
-    if (this.activeInbox) {
-      const email = this.activeInbox.email;
-      this.activeInbox = { ...this.activeInbox };
-      this.cdr.detectChanges();
+    if (this.emailList) {
+      this.emailList.loadEmails();
     }
   }
 }

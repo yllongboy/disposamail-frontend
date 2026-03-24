@@ -48,6 +48,27 @@
   text-wrap: pretty;
 }
 
+.email-card-wrapper {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.sidebar-ad {
+  display: none;
+  width: 160px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1280px) {
+  .sidebar-ad {
+    display: block;
+  }
+}
+
 /* Shared Section Styles */
 .section {
   padding: 5rem 1rem;

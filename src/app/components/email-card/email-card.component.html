@@ -69,5 +69,10 @@
         <app-email-list [email]="activeInbox.email" (emailSelected)="onEmailSelected($event)"></app-email-list>
       }
     </div>
+    @if (inboxes.length > 5) {
+      <div class="client-body-ad">
+        <app-ad-banner orientation="horizontal"></app-ad-banner>
+      </div>
+    }
   }
 </div>

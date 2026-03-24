@@ -36,17 +36,29 @@
     </p>
 
     <!-- Email Card -->
-    <app-email-card class="reveal-child"
-      [mode]="cardMode"
-      [activeInbox]="activeInbox"
-      [inboxes]="inboxes"
-      [unreadCounts]="unreadCounts"
-      (generateRequested)="onGenerateRequested()"
-      (inboxGenerated)="onInboxGenerated($event)"
-      (newInboxRequested)="onNewInboxRequested()"
-      (inboxSelected)="onInboxSelected($event)"
-      (inboxDeleted)="onInboxDeleted($event)">
-    </app-email-card>
+    <div class="email-card-wrapper reveal-child">
+      @if (inboxes.length > 5) {
+        <div class="sidebar-ad sidebar-ad--left">
+          <app-ad-banner orientation="vertical"></app-ad-banner>
+        </div>
+      }
+      <app-email-card
+        [mode]="cardMode"
+        [activeInbox]="activeInbox"
+        [inboxes]="inboxes"
+        [unreadCounts]="unreadCounts"
+        (generateRequested)="onGenerateRequested()"
+        (inboxGenerated)="onInboxGenerated($event)"
+        (newInboxRequested)="onNewInboxRequested()"
+        (inboxSelected)="onInboxSelected($event)"
+        (inboxDeleted)="onInboxDeleted($event)">
+      </app-email-card>
+      @if (inboxes.length > 5) {
+        <div class="sidebar-ad sidebar-ad--right">
+          <app-ad-banner orientation="vertical"></app-ad-banner>
+        </div>
+      }
+    </div>
   </div>
 </section>
 

@@ -1,6 +1,8 @@
 :host {
   display: block;
-  max-width: 48rem;
+  width: 48rem;
+  max-width: 100%;
+  flex-shrink: 0;
   margin: 0 auto;
 }
 
@@ -150,6 +152,14 @@
     background: var(--slate-200, #e2e8f0);
     border-radius: 3px;
   }
+}
+
+.client-body-ad {
+  border-top: 1px solid var(--slate-100);
+  padding: 0.5rem 1rem;
+  flex-shrink: 0;
+  border-radius: 0 0 16px 16px;
+  background: var(--slate-50, #f8fafc);
 }
 
 /* Viewer Bar */

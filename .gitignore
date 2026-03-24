@@ -21,3 +21,6 @@ src/environments/environment.prod.ts
 # Environment overrides
 .env
 .env.local
+
+yes
+yes.pub

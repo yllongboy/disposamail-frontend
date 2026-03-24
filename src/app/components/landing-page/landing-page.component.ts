@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { EmailCardComponent } from '../email-card/email-card.component';
 import { InboxGeneratorComponent } from '../inbox-generator/inbox-generator.component';
+import { AdBannerComponent } from '../ad-banner/ad-banner.component';
 import { InboxStateService } from '../../services/inbox-state.service';
 import { InboxService } from '../../services/inbox.service';
 import { WebSocketService } from '../../services/websocket.service';
@@ -17,7 +18,7 @@ export type CardMode = 'first-visit' | 'generating' | 'email-client';
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, EmailCardComponent, InboxGeneratorComponent, FormsModule],
+  imports: [CommonModule, EmailCardComponent, InboxGeneratorComponent, FormsModule, AdBannerComponent],
   templateUrl: './landing-page.component.html',
   styleUrls: ['./landing-page.component.scss']
 })
