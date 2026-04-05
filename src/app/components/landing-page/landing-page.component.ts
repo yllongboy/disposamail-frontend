@@ -39,7 +39,7 @@ export class LandingPageComponent implements OnInit, OnDestroy, AfterViewInit {
   cardMode: CardMode = 'first-visit';
   appName = environment.appName;
   currentYear = new Date().getFullYear();
-  appVersion = '1.0.0';
+  appVersion = environment.appVersion;
 
   private subscriptions: Subscription[] = [];
 
