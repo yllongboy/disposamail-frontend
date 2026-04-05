@@ -16,6 +16,9 @@
  *   NG_ADSENSE_PUBLISHER_ID Google AdSense publisher ID  default: (empty — ads disabled)
  *   NG_ADSENSE_SLOT_ID      Google AdSense slot ID       default: (empty — ads disabled)
  *   NG_STORAGE_PREFIX       localStorage key prefix      default: disposaMail_
+ *   NG_APP_VERSION          App version shown in footer  default: dev
+ *                           For release builds use the format: <branch-version>.<run-number>
+ *                           e.g. 1.0.0.42 for release/1.0.0 branch, run 42
  */
 
 'use strict';
@@ -68,6 +71,9 @@ export const environment = {
 
   // Storage key prefix (for localStorage)
   storagePrefix: '${s('NG_STORAGE_PREFIX', 'disposaMail_')}',
+
+  // App version shown in footer (set to <branch-version>.<run-number> by CI)
+  appVersion: '${s('NG_APP_VERSION', 'dev')}',
 };
 `;
 
