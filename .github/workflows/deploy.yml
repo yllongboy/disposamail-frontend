@@ -3,11 +3,18 @@ name: Deploy Frontend
 on:
   push:
     branches: [release]
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches: [master]
   workflow_dispatch:
 
 jobs:
   build:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,15 +23,27 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build:prod
+        env:
+          NG_API_URL: ${{ secrets.NG_API_URL }}
+          NG_WS_URL: ${{ secrets.NG_WS_URL }}
+          NG_APP_NAME: ${{ secrets.NG_APP_NAME }}
+          NG_APP_TAGLINE: ${{ secrets.NG_APP_TAGLINE }}
+          NG_APP_URL: ${{ secrets.NG_APP_URL }}
+          NG_GA_TRACKING_ID: ${{ secrets.NG_GA_TRACKING_ID }}
+          NG_ADSENSE_PUBLISHER_ID: ${{ secrets.NG_ADSENSE_PUBLISHER_ID }}
+          NG_ADSENSE_SLOT_ID: ${{ secrets.NG_ADSENSE_SLOT_ID }}
+          NG_STORAGE_PREFIX: ${{ secrets.NG_STORAGE_PREFIX }}
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
           path: dist/frontend/
+          retention-days: 7
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v4
