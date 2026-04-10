@@ -3,7 +3,7 @@ import { environment } from '../../environments/environment';
 
 declare global {
   interface Window {
-    dataLayer: Record<string, unknown>[];
+    dataLayer: unknown[];
     gtag: (...args: unknown[]) => void;
   }
 }
@@ -31,9 +31,9 @@ export class AnalyticsService {
     document.head.appendChild(script);
 
     window.dataLayer = window.dataLayer || [];
-    window.gtag = function (...args: unknown[]) {
-      window.dataLayer.push(Object.assign({}, ...args.filter(a => typeof a === 'object' && a !== null)));
-    };
+    // Standard GA4 gtag — MUST use `arguments`, not rest params
+    /* eslint-disable-next-line prefer-rest-params */
+    window.gtag = function() { window.dataLayer.push(arguments); };
 
     this.gtag('js', new Date());
     this.gtag('config', GA_MEASUREMENT_ID, {
