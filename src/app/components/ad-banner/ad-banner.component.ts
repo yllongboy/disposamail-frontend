@@ -126,9 +126,10 @@ export class AdBannerComponent implements AfterViewInit {
   private normalizePublisherId(value: string | undefined | null): string {
     const id = value?.trim() || '';
     if (!id) return '';
-    if (id.startsWith('ca-pub-')) return id;
-    if (id.startsWith('pub-')) return `ca-${id}`;
-    return `ca-pub-${id}`;
+    if (/^ca-pub-\d+$/.test(id)) return id;
+    if (/^pub-\d+$/.test(id)) return `ca-${id}`;
+    if (/^\d+$/.test(id)) return `ca-pub-${id}`;
+    return '';
   }
 
   private loadAdsenseScript(): Promise<void> {
@@ -145,8 +146,14 @@ export class AdBannerComponent implements AfterViewInit {
     );
 
     if (existingScript) {
-      AdBannerComponent.adsenseScriptPromise = Promise.resolve();
-      return AdBannerComponent.adsenseScriptPromise;
+      if (existingScript.dataset['adsenseStatus'] === 'loaded') {
+        AdBannerComponent.adsenseScriptPromise = Promise.resolve();
+        return AdBannerComponent.adsenseScriptPromise;
+      }
+      if (AdBannerComponent.adsenseScriptPromise) {
+        return AdBannerComponent.adsenseScriptPromise;
+      }
+      existingScript.remove();
     }
 
     AdBannerComponent.adsenseScriptPromise = new Promise<void>((resolve, reject) => {
@@ -154,8 +161,13 @@ export class AdBannerComponent implements AfterViewInit {
       script.async = true;
       script.crossOrigin = 'anonymous';
       script.src = `${AdBannerComponent.adsenseScriptSrc}?client=${encodeURIComponent(this.adsensePublisherId)}`;
-      script.onload = () => resolve();
+      script.dataset['adsenseStatus'] = 'loading';
+      script.onload = () => {
+        script.dataset['adsenseStatus'] = 'loaded';
+        resolve();
+      };
       script.onerror = () => {
+        script.remove();
         AdBannerComponent.adsenseScriptPromise = null;
         reject(new Error('Failed to load AdSense script'));
       };
