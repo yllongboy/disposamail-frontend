@@ -92,7 +92,10 @@ export class AdBannerComponent implements AfterViewInit {
   @Input() adFormat = 'auto';
   @Input() orientation: 'horizontal' | 'vertical' = 'horizontal';
 
-  adsensePublisherId = environment.adsensePublisherId;
+  private static adsenseScriptPromise: Promise<void> | null = null;
+  private static readonly adsenseScriptSrc = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+
+  adsensePublisherId = this.normalizePublisherId(environment.adsensePublisherId);
 
   get hasAdsense(): boolean {
     return Boolean(this.adsensePublisherId?.trim());
@@ -102,15 +105,60 @@ export class AdBannerComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (!this.hasAdsense) return;
-    this.ngZone.runOutsideAngular(() => {
-      setTimeout(() => {
-        try {
-          const adsbygoogle = (window as unknown as { adsbygoogle: unknown[] }).adsbygoogle || [];
-          adsbygoogle.push({});
-        } catch {
-          // AdSense not loaded or blocked
-        }
-      }, 100);
+    this.loadAdsenseScript()
+      .then(() => {
+        this.ngZone.runOutsideAngular(() => {
+          setTimeout(() => {
+            try {
+              const adsbygoogle = (window as unknown as { adsbygoogle: unknown[] }).adsbygoogle || [];
+              adsbygoogle.push({});
+            } catch {
+              // AdSense not loaded or blocked
+            }
+          }, 100);
+        });
+      })
+      .catch(() => {
+        // AdSense blocked or failed to load
+      });
+  }
+
+  private normalizePublisherId(value: string): string {
+    const id = value.trim();
+    if (!id) return '';
+    if (id.startsWith('ca-pub-')) return id;
+    if (id.startsWith('pub-')) return `ca-${id}`;
+    return `ca-pub-${id}`;
+  }
+
+  private loadAdsenseScript(): Promise<void> {
+    if (typeof document === 'undefined' || !this.hasAdsense) {
+      return Promise.resolve();
+    }
+
+    if (AdBannerComponent.adsenseScriptPromise) {
+      return AdBannerComponent.adsenseScriptPromise;
+    }
+
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      `script[src^="${AdBannerComponent.adsenseScriptSrc}"]`
+    );
+
+    if (existingScript) {
+      AdBannerComponent.adsenseScriptPromise = Promise.resolve();
+      return AdBannerComponent.adsenseScriptPromise;
+    }
+
+    AdBannerComponent.adsenseScriptPromise = new Promise<void>((resolve, reject) => {
+      const script = document.createElement('script');
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      script.src = `${AdBannerComponent.adsenseScriptSrc}?client=${encodeURIComponent(this.adsensePublisherId)}`;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Failed to load AdSense script'));
+      document.head.appendChild(script);
     });
+
+    return AdBannerComponent.adsenseScriptPromise;
   }
 }
