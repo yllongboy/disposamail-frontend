@@ -108,6 +108,9 @@
   border-radius: 9999px;
   font-size: 0.8125rem;
   color: var(--slate-700, #334155);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .attachment-size {
@@ -157,7 +160,7 @@
   background: var(--slate-50, #f8fafc);
   border-radius: 8px;
   border: 1px solid var(--slate-100, #f1f5f9);
-  overflow: hidden;
+  overflow-x: auto;
   min-height: 200px;
 
   .html-frame {
@@ -190,6 +193,23 @@
 }
 
 /* Responsive */
+@media (max-width: 480px) {
+  .viewer-content {
+    padding: 1rem;
+  }
+
+  .viewer-subject {
+    font-size: 1.125rem;
+  }
+
+  .sender-avatar {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: 0.75rem;
+  }
+}
+
 @media (min-width: 640px) {
   .viewer-content {
     padding: 1.5rem 2rem;
