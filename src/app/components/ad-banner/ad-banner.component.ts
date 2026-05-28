@@ -94,6 +94,13 @@ export class AdBannerComponent implements AfterViewInit {
 
   private static adsenseScriptPromise: Promise<void> | null = null;
   private static readonly adsenseScriptSrc = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+  /**
+   * How long (ms) to wait before assuming a script injected via index.html has
+   * already finished loading.  By the time ngAfterViewInit runs, async scripts
+   * placed in <head> are typically already evaluated; 300 ms covers the rare
+   * case where the browser is still streaming the script.
+   */
+  private static readonly SCRIPT_LOAD_FALLBACK_MS = 300;
 
   adsensePublisherId = this.normalizePublisherId(environment.adsensePublisherId);
 
@@ -168,7 +175,7 @@ export class AdBannerComponent implements AfterViewInit {
         existingScript.addEventListener('error', done, { once: true });
         // Fallback: by the time ngAfterViewInit runs the async script from
         // <head> is very likely already loaded — resolve after a short delay.
-        setTimeout(done, 300);
+        setTimeout(done, AdBannerComponent.SCRIPT_LOAD_FALLBACK_MS);
       });
       return AdBannerComponent.adsenseScriptPromise;
     }

@@ -109,9 +109,12 @@ let indexHtml = fs.readFileSync(indexSrcPath, 'utf8');
 const rawPublisherId    = env('NG_ADSENSE_PUBLISHER_ID', '');
 const normalizedPubId   = normalizePublisherId(rawPublisherId);
 
-// Pattern that matches the commented-out AdSense placeholder in index.html:
-//   <!-- <script async src="https://pagead2.googlesyndication.com/..."></script> -->
-const adsensePlaceholder = /<!--\s*<script[^>]*pagead2\.googlesyndication\.com[^>]*><\/script>\s*-->/;
+// Pattern that matches the commented-out AdSense placeholder in index.html.
+// The anchor ensures we only replace a <script> whose src begins with the
+// AdSense URL, not any other commented-out script that happens to reference
+// pagead2.googlesyndication.com elsewhere in its attributes.
+const adsensePlaceholder =
+  /<!--\s*<script\s[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^"]*"[^>]*><\/script>\s*-->/;
 
 if (normalizedPubId) {
   const scriptTag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${normalizedPubId}" crossorigin="anonymous"></script>`;
