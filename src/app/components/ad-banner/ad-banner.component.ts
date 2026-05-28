@@ -123,8 +123,8 @@ export class AdBannerComponent implements AfterViewInit {
       });
   }
 
-  private normalizePublisherId(value: string): string {
-    const id = value.trim();
+  private normalizePublisherId(value: string | undefined | null): string {
+    const id = value?.trim() || '';
     if (!id) return '';
     if (id.startsWith('ca-pub-')) return id;
     if (id.startsWith('pub-')) return `ca-${id}`;
@@ -155,7 +155,10 @@ export class AdBannerComponent implements AfterViewInit {
       script.crossOrigin = 'anonymous';
       script.src = `${AdBannerComponent.adsenseScriptSrc}?client=${encodeURIComponent(this.adsensePublisherId)}`;
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Failed to load AdSense script'));
+      script.onerror = () => {
+        AdBannerComponent.adsenseScriptPromise = null;
+        reject(new Error('Failed to load AdSense script'));
+      };
       document.head.appendChild(script);
     });
 
