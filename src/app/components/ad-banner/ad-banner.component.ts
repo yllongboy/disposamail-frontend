@@ -150,10 +150,27 @@ export class AdBannerComponent implements AfterViewInit {
         AdBannerComponent.adsenseScriptPromise = Promise.resolve();
         return AdBannerComponent.adsenseScriptPromise;
       }
-      if (AdBannerComponent.adsenseScriptPromise) {
-        return AdBannerComponent.adsenseScriptPromise;
-      }
-      existingScript.remove();
+
+      // Script already in DOM (e.g. injected via index.html at build time).
+      // Attach load/error listeners without removing it; use a short-circuit
+      // timeout as a fallback for scripts that loaded before we attached.
+      AdBannerComponent.adsenseScriptPromise = new Promise<void>((resolve) => {
+        let settled = false;
+        const done = () => {
+          if (!settled) {
+            settled = true;
+            existingScript.dataset['adsenseStatus'] = 'loaded';
+            resolve();
+          }
+        };
+        existingScript.addEventListener('load', done, { once: true });
+        // Treat blocked/error as resolved so ad units can still attempt push({})
+        existingScript.addEventListener('error', done, { once: true });
+        // Fallback: by the time ngAfterViewInit runs the async script from
+        // <head> is very likely already loaded — resolve after a short delay.
+        setTimeout(done, 300);
+      });
+      return AdBannerComponent.adsenseScriptPromise;
     }
 
     AdBannerComponent.adsenseScriptPromise = new Promise<void>((resolve, reject) => {

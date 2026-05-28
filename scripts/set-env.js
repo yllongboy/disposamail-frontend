@@ -80,3 +80,46 @@ export const environment = {
 fs.mkdirSync(path.dirname(targetPath), { recursive: true });
 fs.writeFileSync(targetPath, content, 'utf8');
 console.log(`✅  Generated ${path.relative(process.cwd(), targetPath)}`);
+
+// ─── Generate src/index.prod.html ─────────────────────────────────────────────
+// Inject the Google AdSense <script> directly into <head> so it is present in
+// the HTML entry point regardless of Angular's JS bundle tree-shaking.
+// When NG_ADSENSE_PUBLISHER_ID is unset the placeholder comment is preserved.
+
+/**
+ * Normalise a raw publisher-ID value to the canonical `ca-pub-NNNNN` form.
+ * Returns an empty string for unrecognised or empty input.
+ * @param {string} value
+ * @returns {string}
+ */
+function normalizePublisherId(value) {
+  const id = (value || '').trim();
+  if (!id) return '';
+  if (/^ca-pub-\d+$/.test(id)) return id;
+  if (/^pub-\d+$/.test(id)) return `ca-${id}`;
+  if (/^\d+$/.test(id)) return `ca-pub-${id}`;
+  return '';
+}
+
+const indexSrcPath  = path.resolve(__dirname, '../src/index.html');
+const indexDestPath = path.resolve(__dirname, '../src/index.prod.html');
+
+let indexHtml = fs.readFileSync(indexSrcPath, 'utf8');
+
+const rawPublisherId    = env('NG_ADSENSE_PUBLISHER_ID', '');
+const normalizedPubId   = normalizePublisherId(rawPublisherId);
+
+// Pattern that matches the commented-out AdSense placeholder in index.html:
+//   <!-- <script async src="https://pagead2.googlesyndication.com/..."></script> -->
+const adsensePlaceholder = /<!--\s*<script[^>]*pagead2\.googlesyndication\.com[^>]*><\/script>\s*-->/;
+
+if (normalizedPubId) {
+  const scriptTag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${normalizedPubId}" crossorigin="anonymous"></script>`;
+  indexHtml = indexHtml.replace(adsensePlaceholder, scriptTag);
+  console.log(`✅  Injected AdSense script into index.prod.html (publisher: ${normalizedPubId})`);
+} else {
+  console.log('ℹ️   NG_ADSENSE_PUBLISHER_ID not set — AdSense script omitted from index.prod.html');
+}
+
+fs.writeFileSync(indexDestPath, indexHtml, 'utf8');
+console.log(`✅  Generated ${path.relative(process.cwd(), indexDestPath)}`);
