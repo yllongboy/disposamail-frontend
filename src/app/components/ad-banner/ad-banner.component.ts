@@ -94,6 +94,13 @@ export class AdBannerComponent implements AfterViewInit {
 
   private static adsenseScriptPromise: Promise<void> | null = null;
   private static readonly adsenseScriptSrc = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+  /**
+   * How long (ms) to wait before assuming a script injected via index.html has
+   * already finished loading.  By the time ngAfterViewInit runs, async scripts
+   * placed in <head> are typically already evaluated; 300 ms covers the rare
+   * case where the browser is still streaming the script.
+   */
+  private static readonly SCRIPT_LOAD_FALLBACK_MS = 300;
 
   adsensePublisherId = this.normalizePublisherId(environment.adsensePublisherId);
 
@@ -150,10 +157,27 @@ export class AdBannerComponent implements AfterViewInit {
         AdBannerComponent.adsenseScriptPromise = Promise.resolve();
         return AdBannerComponent.adsenseScriptPromise;
       }
-      if (AdBannerComponent.adsenseScriptPromise) {
-        return AdBannerComponent.adsenseScriptPromise;
-      }
-      existingScript.remove();
+
+      // Script already in DOM (e.g. injected via index.html at build time).
+      // Attach load/error listeners without removing it; use a short-circuit
+      // timeout as a fallback for scripts that loaded before we attached.
+      AdBannerComponent.adsenseScriptPromise = new Promise<void>((resolve) => {
+        let settled = false;
+        const done = () => {
+          if (!settled) {
+            settled = true;
+            existingScript.dataset['adsenseStatus'] = 'loaded';
+            resolve();
+          }
+        };
+        existingScript.addEventListener('load', done, { once: true });
+        // Treat blocked/error as resolved so ad units can still attempt push({})
+        existingScript.addEventListener('error', done, { once: true });
+        // Fallback: by the time ngAfterViewInit runs the async script from
+        // <head> is very likely already loaded — resolve after a short delay.
+        setTimeout(done, AdBannerComponent.SCRIPT_LOAD_FALLBACK_MS);
+      });
+      return AdBannerComponent.adsenseScriptPromise;
     }
 
     AdBannerComponent.adsenseScriptPromise = new Promise<void>((resolve, reject) => {

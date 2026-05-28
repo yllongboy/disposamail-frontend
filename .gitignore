@@ -18,6 +18,9 @@ Thumbs.db
 # Production environment (contains secrets)
 src/environments/environment.prod.ts
 
+# Generated production index (contains injected AdSense script)
+src/index.prod.html
+
 # Environment overrides
 .env
 .env.local
