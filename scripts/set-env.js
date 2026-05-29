@@ -27,6 +27,8 @@ const fs = require('fs');
 const path = require('path');
 
 const targetPath = path.resolve(__dirname, '../src/environments/environment.prod.ts');
+const cliArgs = new Set(process.argv.slice(2));
+const shouldPatchBuiltHtml = cliArgs.has('--patch-built-html');
 
 /** Read a string env var, falling back to a default value. */
 function env(name, defaultValue) {
@@ -101,11 +103,6 @@ function normalizePublisherId(value) {
   return '';
 }
 
-const indexSrcPath  = path.resolve(__dirname, '../src/index.html');
-const indexDestPath = path.resolve(__dirname, '../src/index.prod.html');
-
-let indexHtml = fs.readFileSync(indexSrcPath, 'utf8');
-
 const rawPublisherId    = env('NG_ADSENSE_PUBLISHER_ID', '');
 const normalizedPubId   = normalizePublisherId(rawPublisherId);
 
@@ -116,13 +113,91 @@ const normalizedPubId   = normalizePublisherId(rawPublisherId);
 const adsensePlaceholder =
   /<!--\s*<script\s[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^"]*"[^>]*><\/script>\s*-->/;
 
-if (normalizedPubId) {
-  const scriptTag = `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${normalizedPubId}" crossorigin="anonymous"></script>`;
-  indexHtml = indexHtml.replace(adsensePlaceholder, scriptTag);
-  console.log(`✅  Injected AdSense script into index.prod.html (publisher: ${normalizedPubId})`);
-} else {
-  console.log('ℹ️   NG_ADSENSE_PUBLISHER_ID not set — AdSense script omitted from index.prod.html');
+const adsenseScriptPattern =
+  /<script\s[^>]*\bsrc="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js[^"]*"[^>]*><\/script>/;
+const headClosePattern = /<\/head>/i;
+
+function createAdsenseScriptTag(publisherId) {
+  return `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}" crossorigin="anonymous"></script>`;
 }
 
-fs.writeFileSync(indexDestPath, indexHtml, 'utf8');
+function injectAdsenseScript(html, publisherId) {
+  if (!publisherId) {
+    return {
+      html,
+      changed: false,
+      injected: false
+    };
+  }
+
+  const scriptTag = createAdsenseScriptTag(publisherId);
+
+  if (adsensePlaceholder.test(html)) {
+    return {
+      html: html.replace(adsensePlaceholder, scriptTag),
+      changed: true,
+      injected: true
+    };
+  }
+
+  if (adsenseScriptPattern.test(html)) {
+    return {
+      html: html.replace(adsenseScriptPattern, scriptTag),
+      changed: true,
+      injected: true
+    };
+  }
+
+  if (headClosePattern.test(html)) {
+    return {
+      html: html.replace(headClosePattern, `  ${scriptTag}\n</head>`),
+      changed: true,
+      injected: true
+    };
+  }
+
+  return {
+    html,
+    changed: false,
+    injected: false
+  };
+}
+
+function patchHtmlFile(filePath, label) {
+  if (!fs.existsSync(filePath)) {
+    console.log(`ℹ️   Skipped ${label} — file not found`);
+    return;
+  }
+
+  const originalHtml = fs.readFileSync(filePath, 'utf8');
+  const result = injectAdsenseScript(originalHtml, normalizedPubId);
+
+  if (!normalizedPubId) {
+    console.log(`ℹ️   NG_ADSENSE_PUBLISHER_ID not set — AdSense script omitted from ${label}`);
+    return;
+  }
+
+  if (!result.injected) {
+    console.warn(`⚠️   Could not inject AdSense script into ${label}`);
+    return;
+  }
+
+  if (result.changed) {
+    fs.writeFileSync(filePath, result.html, 'utf8');
+  }
+
+  console.log(`✅  Injected AdSense script into ${label} (publisher: ${normalizedPubId})`);
+}
+
+const indexSrcPath  = path.resolve(__dirname, '../src/index.html');
+const indexDestPath = path.resolve(__dirname, '../src/index.prod.html');
+
+fs.mkdirSync(path.dirname(indexDestPath), { recursive: true });
+fs.copyFileSync(indexSrcPath, indexDestPath);
+patchHtmlFile(indexDestPath, 'src/index.prod.html');
 console.log(`✅  Generated ${path.relative(process.cwd(), indexDestPath)}`);
+
+if (shouldPatchBuiltHtml) {
+  patchHtmlFile(path.resolve(__dirname, '../dist/frontend/index.html'), 'dist/frontend/index.html');
+  patchHtmlFile(path.resolve(__dirname, '../dist/frontend/browser/index.html'), 'dist/frontend/browser/index.html');
+}
