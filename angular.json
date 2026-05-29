@@ -36,7 +36,10 @@
           },
           "configurations": {
             "production": {
-              "index": "src/index.prod.html",
+              "index": {
+                "input": "src/index.prod.html",
+                "output": "index.html"
+              },
               "outputHashing": "all",
               "fileReplacements": [
                 {
