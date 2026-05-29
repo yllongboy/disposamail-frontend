@@ -26,6 +26,42 @@
 const fs = require('fs');
 const path = require('path');
 
+// Load .env for local development convenience; OS/CI env vars still win.
+const dotenvPath = path.resolve(__dirname, '../.env');
+if (fs.existsSync(dotenvPath)) {
+  const dotenvContent = fs.readFileSync(dotenvPath, 'utf8');
+  const dotenvLines = dotenvContent.split(/\r?\n/);
+
+  for (const rawLine of dotenvLines) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) {
+      continue;
+    }
+
+    const separatorIndex = line.indexOf('=');
+    if (separatorIndex <= 0) {
+      continue;
+    }
+
+    const key = line.slice(0, separatorIndex).trim();
+    if (!key) {
+      continue;
+    }
+
+    let value = line.slice(separatorIndex + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    if (process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
+}
+
 const targetPath = path.resolve(__dirname, '../src/environments/environment.prod.ts');
 const cliArgs = new Set(process.argv.slice(2));
 const shouldPatchBuiltHtml = cliArgs.has('--patch-built-html');
