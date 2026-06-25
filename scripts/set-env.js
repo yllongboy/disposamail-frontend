@@ -64,7 +64,8 @@ if (fs.existsSync(dotenvPath)) {
 
 const targetPath = path.resolve(__dirname, '../src/environments/environment.prod.ts');
 const cliArgs = new Set(process.argv.slice(2));
-const shouldPatchBuiltHtml = cliArgs.has('--patch-built-html');
+const shouldPatchBuiltAssets = cliArgs.has('--patch-built-assets');
+const adsTxtContent = 'google.com, pub-7081249125417357, DIRECT, f08c47fec0942fa0\n';
 
 /** Read a string env var, falling back to a default value. */
 function env(name, defaultValue) {
@@ -225,6 +226,12 @@ function patchHtmlFile(filePath, label) {
   console.log(`✅  Injected AdSense script into ${label} (publisher: ${normalizedPubId})`);
 }
 
+function writeAdsTxtFile(filePath, label) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, adsTxtContent, 'utf8');
+  console.log(`✅  Generated ${label}`);
+}
+
 const indexSrcPath  = path.resolve(__dirname, '../src/index.html');
 const indexDestPath = path.resolve(__dirname, '../src/index.prod.html');
 
@@ -233,7 +240,9 @@ fs.copyFileSync(indexSrcPath, indexDestPath);
 patchHtmlFile(indexDestPath, 'src/index.prod.html');
 console.log(`✅  Generated ${path.relative(process.cwd(), indexDestPath)}`);
 
-if (shouldPatchBuiltHtml) {
+if (shouldPatchBuiltAssets) {
   patchHtmlFile(path.resolve(__dirname, '../dist/frontend/index.html'), 'dist/frontend/index.html');
   patchHtmlFile(path.resolve(__dirname, '../dist/frontend/browser/index.html'), 'dist/frontend/browser/index.html');
+  writeAdsTxtFile(path.resolve(__dirname, '../dist/frontend/ads.txt'), 'dist/frontend/ads.txt');
+  writeAdsTxtFile(path.resolve(__dirname, '../dist/frontend/browser/ads.txt'), 'dist/frontend/browser/ads.txt');
 }
