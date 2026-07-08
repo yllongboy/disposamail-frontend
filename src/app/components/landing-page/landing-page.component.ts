@@ -1,17 +1,17 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, inject, ElementRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, inject, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { EmailCardComponent } from '../email-card/email-card.component';
-import { InboxGeneratorComponent } from '../inbox-generator/inbox-generator.component';
-import { AdBannerComponent } from '../ad-banner/ad-banner.component';
+import { environment } from '../../../environments/environment';
+import { Inbox, SavedInbox } from '../../models/email.model';
+import { AnalyticsService } from '../../services/analytics.service';
+import { DomainService } from '../../services/domain.service';
 import { InboxStateService } from '../../services/inbox-state.service';
 import { InboxService } from '../../services/inbox.service';
 import { WebSocketService } from '../../services/websocket.service';
-import { DomainService } from '../../services/domain.service';
-import { AnalyticsService } from '../../services/analytics.service';
-import { SavedInbox, Inbox } from '../../models/email.model';
-import { environment } from '../../../environments/environment';
+import { AdBannerComponent } from '../ad-banner/ad-banner.component';
+import { EmailCardComponent } from '../email-card/email-card.component';
+import { InboxGeneratorComponent } from '../inbox-generator/inbox-generator.component';
 
 export type CardMode = 'first-visit' | 'generating' | 'email-client';
 
@@ -178,6 +178,19 @@ export class LandingPageComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       if (this.inboxes.length === 0) {
         this.cardMode = 'first-visit';
+      }
+    });
+  }
+
+  onPersistToggled(event: { email: string; persist: boolean }): void {
+    // Optimistic update - save locally first so state persists across page refresh
+    this.inboxState.togglePersist(event.email, event.persist);
+    this.analytics.trackInboxPersisted(event.email, event.persist);
+
+    // Sync with backend - revert on failure
+    this.inboxService.persistInbox(event.email, event.persist).subscribe({
+      error: () => {
+        this.inboxState.togglePersist(event.email, !event.persist);
       }
     });
   }

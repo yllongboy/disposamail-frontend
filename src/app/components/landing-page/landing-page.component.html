@@ -51,6 +51,7 @@
         (inboxGenerated)="onInboxGenerated($event)"
         (newInboxRequested)="onNewInboxRequested()"
         (inboxSelected)="onInboxSelected($event)"
+        (persistToggled)="onPersistToggled($event)"
         (inboxDeleted)="onInboxDeleted($event)">
       </app-email-card>
       @if (inboxes.length > 5) {

@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { Inbox, SavedInbox } from '../models/email.model';
 import { StorageService } from './storage.service';
-import { SavedInbox, Inbox } from '../models/email.model';
 
 const DEFAULT_TTL_MS = 86400 * 1000; // 24 hours
 
 @Injectable({ providedIn: 'root' })
 export class InboxStateService {
+  private storage = inject(StorageService);
   private inboxesSubject = new BehaviorSubject<SavedInbox[]>([]);
   private activeInboxSubject = new BehaviorSubject<SavedInbox | null>(null);
   private unreadCountsSubject = new BehaviorSubject<Map<string, number>>(new Map());
@@ -14,8 +15,6 @@ export class InboxStateService {
   inboxes$: Observable<SavedInbox[]> = this.inboxesSubject.asObservable();
   activeInbox$: Observable<SavedInbox | null> = this.activeInboxSubject.asObservable();
   unreadCounts$: Observable<Map<string, number>> = this.unreadCountsSubject.asObservable();
-
-  constructor(private storage: StorageService) {}
 
   initialize(): void {
     this.storage.pruneExpiredInboxes(DEFAULT_TTL_MS);
@@ -85,5 +84,30 @@ export class InboxStateService {
     const counts = new Map(this.unreadCountsSubject.getValue());
     counts.delete(email);
     this.unreadCountsSubject.next(counts);
+  }
+
+  togglePersist(email: string, persisted: boolean): void {
+    const current = this.inboxesSubject.getValue();
+    let updated = false;
+
+    const inboxes = current.map(inbox => {
+      if (inbox.email !== email) {
+        return inbox;
+      }
+      updated = true;
+      return { ...inbox, persisted };
+    });
+
+    if (!updated) {
+      return;
+    }
+
+    this.storage.updateInbox(email, { persisted });
+    this.inboxesSubject.next(inboxes);
+
+    const active = this.activeInboxSubject.getValue();
+    if (active && active.email === email) {
+      this.activeInboxSubject.next({ ...active, persisted });
+    }
   }
 }

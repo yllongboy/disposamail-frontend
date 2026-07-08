@@ -1,15 +1,14 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Email, InboxEmail, Inbox } from '../models/email.model';
 import { environment } from '../../environments/environment';
+import { Email, Inbox, InboxEmail } from '../models/email.model';
 
 @Injectable({ providedIn: 'root' })
 export class InboxService {
+  private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
-
-  constructor(private http: HttpClient) {}
 
   generateInbox(domain?: string): Observable<Inbox> {
     return this.http.post<Inbox>(`${this.apiUrl}/inbox`, domain ? { domain } : {});
@@ -34,5 +33,12 @@ export class InboxService {
 
   deleteEmails(ids: string[]): Observable<{ deleted: number }> {
     return this.http.post<{ deleted: number }>(`${this.apiUrl}/email/bulk-delete`, { ids });
+  }
+
+  persistInbox(email: string, persist: boolean): Observable<{ persisted: boolean }> {
+    return this.http.patch<{ persisted: boolean }>(
+      `${this.apiUrl}/inbox/${encodeURIComponent(email)}/persist`,
+      { persist }
+    );
   }
 }

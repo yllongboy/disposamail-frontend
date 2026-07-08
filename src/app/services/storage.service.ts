@@ -27,11 +27,22 @@ export class StorageService {
     this.setItem(INBOXES_KEY, inboxes);
   }
 
+  updateInbox(email: string, updates: Partial<SavedInbox>): void {
+    const inboxes = this.getInboxes();
+    const index = inboxes.findIndex(i => i.email === email);
+    if (index === -1) {
+      return;
+    }
+
+    inboxes[index] = { ...inboxes[index], ...updates };
+    this.setItem(INBOXES_KEY, inboxes);
+  }
+
   pruneExpiredInboxes(ttlMs: number): SavedInbox[] {
     const now = Date.now();
     const inboxes = this.getInboxes();
-    const active = inboxes.filter(i => (now - i.createdAt) < ttlMs);
-    const pruned = inboxes.filter(i => (now - i.createdAt) >= ttlMs);
+    const active = inboxes.filter(i => i.persisted === true || (now - i.createdAt) < ttlMs);
+    const pruned = inboxes.filter(i => i.persisted !== true && (now - i.createdAt) >= ttlMs);
     this.setItem(INBOXES_KEY, active);
     return pruned;
   }
