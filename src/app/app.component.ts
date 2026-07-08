@@ -1,26 +1,31 @@
 import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { environment } from '../environments/environment';
 import { CookieConsentComponent } from './components/cookie-consent/cookie-consent.component';
 import { AnalyticsService } from './services/analytics.service';
-import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CookieConsentComponent],
+  imports: [RouterOutlet, RouterLink, CookieConsentComponent],
   template: `
     <nav class="navbar">
       <div class="navbar-content">
-        <div class="navbar-brand">
+        <a routerLink="/" class="navbar-brand">
           <div class="brand-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect width="20" height="16" x="2" y="4" rx="2"></rect>
               <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
             </svg>
           </div>
-          <span class="brand-text">{{ appName }}</span>
+          <div class="brand-info">
+            <span class="brand-text">{{ appName }}</span>
+            <p class="navbar-tagline">{{ appTagline }}</p>
+          </div>
+        </a>
+        <div class="navbar-nav">
+          <a routerLink="/faq" routerLinkActive="active" class="nav-link">FAQ</a>
         </div>
-        <p class="navbar-tagline">{{ appTagline }}</p>
       </div>
     </nav>
     <main class="page-content">
@@ -60,7 +65,14 @@ import { environment } from '../environments/environment';
     .navbar-brand {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.75rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .navbar-brand:hover {
+      opacity: 0.8;
     }
 
     .brand-icon {
@@ -73,18 +85,52 @@ import { environment } from '../environments/environment';
       justify-content: center;
       color: white;
       box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.25);
+      flex-shrink: 0;
+    }
+
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
     }
 
     .brand-text {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       font-weight: 700;
       color: var(--slate-800, #1e293b);
     }
 
     .navbar-tagline {
       color: var(--slate-500, #64748b);
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       margin: 0;
+    }
+
+    .navbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: var(--slate-600, #475569);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--blue-600, #2563eb);
+      background: var(--blue-50, #eff6ff);
+    }
+
+    .nav-link.active {
+      color: var(--blue-600, #2563eb);
+      background: var(--blue-50, #eff6ff);
+      font-weight: 600;
     }
 
     .page-content {
@@ -97,6 +143,15 @@ import { environment } from '../environments/environment';
       }
       .navbar-tagline {
         display: none;
+      }
+      .brand-text {
+        font-size: 1rem;
+      }
+      .navbar-nav {
+        gap: 1rem;
+      }
+      .nav-link {
+        font-size: 0.9rem;
       }
     }
 
