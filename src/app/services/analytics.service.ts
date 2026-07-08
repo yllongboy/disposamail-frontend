@@ -1,4 +1,4 @@
-import { Injectable, inject, NgZone } from '@angular/core';
+import { inject, Injectable, NgZone } from '@angular/core';
 import { environment } from '../../environments/environment';
 
 declare global {
@@ -83,6 +83,10 @@ export class AnalyticsService {
 
   trackInboxDeleted(): void {
     this.trackEvent('inbox_deleted');
+  }
+
+  trackInboxPersisted(email: string, persisted: boolean): void {
+    this.trackEvent('inbox_persisted', { email_address: email, persisted });
   }
 
   trackNewInboxClicked(): void {

@@ -1,14 +1,14 @@
-import { Component, Input, Output, EventEmitter, inject, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { InboxGeneratorComponent } from '../inbox-generator/inbox-generator.component';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
+import { Inbox, SavedInbox } from '../../models/email.model';
+import { AnalyticsService } from '../../services/analytics.service';
+import { InboxStateService } from '../../services/inbox-state.service';
+import { StorageService } from '../../services/storage.service';
+import { AdBannerComponent } from '../ad-banner/ad-banner.component';
 import { EmailListComponent } from '../email-list/email-list.component';
 import { EmailViewerComponent } from '../email-viewer/email-viewer.component';
 import { InboxDropdownComponent } from '../inbox-dropdown/inbox-dropdown.component';
-import { AdBannerComponent } from '../ad-banner/ad-banner.component';
-import { InboxStateService } from '../../services/inbox-state.service';
-import { StorageService } from '../../services/storage.service';
-import { AnalyticsService } from '../../services/analytics.service';
-import { SavedInbox, Inbox } from '../../models/email.model';
+import { InboxGeneratorComponent } from '../inbox-generator/inbox-generator.component';
 
 @Component({
   selector: 'app-email-card',
@@ -35,6 +35,7 @@ export class EmailCardComponent {
   @Output() newInboxRequested = new EventEmitter<void>();
   @Output() inboxSelected = new EventEmitter<string>();
   @Output() inboxDeleted = new EventEmitter<string>();
+  @Output() persistToggled = new EventEmitter<{ email: string; persist: boolean }>();
 
   @ViewChild(EmailListComponent) private emailList?: EmailListComponent;
 
@@ -60,6 +61,12 @@ export class EmailCardComponent {
     this.selectedEmailId = null;
     this.analytics.trackNewInboxClicked();
     this.newInboxRequested.emit();
+  }
+
+  onPersistToggle(event: Event): void {
+    if (!this.activeInbox) return;
+    const checked = (event.target as HTMLInputElement).checked;
+    this.persistToggled.emit({ email: this.activeInbox.email, persist: checked });
   }
 
   get totalOtherUnread(): number {

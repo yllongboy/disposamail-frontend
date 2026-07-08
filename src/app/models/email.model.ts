@@ -33,4 +33,5 @@ export interface Inbox {
 
 export interface SavedInbox extends Inbox {
   label?: string;
+  persisted?: boolean;
 }

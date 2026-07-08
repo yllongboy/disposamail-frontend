@@ -377,7 +377,8 @@ export class FAQComponent {
       id: 'q3',
       category: 'General Questions',
       question: 'How long can I use a temporary email address?',
-      answer: `<p>Temporary email addresses are active for <strong>24 hours</strong> from creation. After this period, the inbox automatically expires and is permanently deleted. You can generate a new address at any time.</p>`,
+      answer: `<p>Temporary email addresses are active for <strong>24 hours</strong> from creation by default. After this period, the inbox automatically expires and is permanently deleted.</p>
+      <p>If you want to keep an inbox longer, enable the <strong>"Keep this inbox"</strong> option in your inbox header to prevent auto-deletion and continue receiving emails.</p>`,
       expanded: false,
     },
     {
@@ -447,6 +448,14 @@ export class FAQComponent {
       question: 'Can I delete individual emails?',
       answer: `<p>Yes. Click the email in the inbox, then select <strong>"Delete"</strong> to remove it. The email is immediately removed from your inbox.</p>
       <p>You can also <strong>delete the entire inbox</strong> to purge all emails immediately. This action is <strong>permanent and irreversible</strong>.</p>`,
+      expanded: false,
+    },
+    {
+      id: 'q15',
+      category: 'Using DisposaMail',
+      question: 'Can I keep my inbox active longer than 24 hours?',
+      answer: `<p>Yes. Turn on the <strong>"Keep this inbox"</strong> checkbox in your inbox header to stop auto-deletion and keep receiving emails indefinitely.</p>
+      <p>You can turn it off at any time to resume the normal deletion countdown. If you turn <strong>"Keep this inbox"</strong> back on later, the countdown is reset and you get a full grace period again.</p>`,
       expanded: false,
     },
 

@@ -11,6 +11,8 @@ DisposaMail is a **free, anonymous temporary email service** that lets you gener
 ### How long can I use a temporary email address?
 Temporary email addresses are active for **24 hours** from creation. After this period, the inbox automatically expires and is permanently deleted. You can generate a new address at any time.
 
+If you want to keep an inbox longer, enable the **"Keep this inbox"** option in your inbox header to prevent auto-deletion and continue receiving emails.
+
 ### Can I choose my email address?
 Not the full address, but you **can choose the domain**. When you click "Generate," a custom username is created, and you can select from available domains (like `tempmail.dev`, `quickinbox.net`, `throwmail.io`) before generating.
 
@@ -87,6 +89,9 @@ Before your inbox expires (24 hours), you can:
 - **Download the raw email** (if your browser allows)
 
 **Note:** Your inbox is tied to the temporary address. Once it expires, all emails are permanently deleted.
+
+### Can I keep my inbox active longer than 24 hours?
+Yes! Turn on the **"Keep this inbox"** checkbox in your inbox header to stop auto-deletion and keep receiving emails indefinitely. You can turn it off at any time to resume the normal deletion countdown. If you turn **"Keep this inbox"** back on later, the countdown resets and you get a full grace period again.
 
 ### Can I save or export my emails?
 Not directly through the interface, but you can:

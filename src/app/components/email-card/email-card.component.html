@@ -32,6 +32,11 @@
         @if (copied) {
           <span class="copied-label">Copied!</span>
         }
+        <label class="toggle-persist" title="Keep this inbox active indefinitely">
+          <input type="checkbox" [checked]="activeInbox?.persisted" (change)="onPersistToggle($event)" />
+          <span class="toggle-switch"></span>
+          <span class="toggle-label">Keep this inbox</span>
+        </label>
       </div>
       <div class="client-header-right">
         <button class="btn-icon-sm" (click)="refreshEmails()" title="Refresh">
