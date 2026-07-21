@@ -32,7 +32,7 @@ interface BannerConfig {
   styles: [`
     .status-banner {
       position: relative;
-      padding: 12px 24px;
+      padding: 0;
       border-bottom: 2px solid;
       animation: slideDown 0.3s ease-out;
     }
@@ -71,30 +71,51 @@ interface BannerConfig {
     }
 
     .info {
-      background: var(--blue-50);
-      border-color: var(--blue-500);
+      background: var(--blue-600, #2563eb);
+      border-color: var(--blue-700, #1d4ed8);
     }
 
-    .info .banner-icon {
-      color: var(--blue-500);
+    .info .banner-message,
+    .info .banner-icon,
+    .info .banner-dismiss {
+      color: #fff;
+    }
+
+    .info .banner-dismiss:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .warning {
-      background: var(--amber-100);
-      border-color: var(--amber-500);
+      background: var(--amber-500, #f59e0b);
+      border-color: var(--amber-600, #d97706);
     }
 
-    .warning .banner-icon {
-      color: var(--amber-500);
+    .warning .banner-message,
+    .warning .banner-icon,
+    .warning .banner-dismiss {
+      color: var(--slate-800, #1e293b);
+    }
+
+    .warning .banner-dismiss:hover {
+      color: var(--slate-800, #1e293b);
+      background: rgba(30, 41, 59, 0.16);
     }
 
     .success {
-      background: var(--emerald-100);
-      border-color: var(--emerald-500);
+      background: var(--emerald-600, #059669);
+      border-color: var(--emerald-700, #047857);
     }
 
-    .success .banner-icon {
-      color: var(--emerald-500);
+    .success .banner-message,
+    .success .banner-icon,
+    .success .banner-dismiss {
+      color: #fff;
+    }
+
+    .success .banner-dismiss:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.2);
     }
 
     @keyframes slideDown {
@@ -110,7 +131,7 @@ interface BannerConfig {
     }
 
     @media (max-width: 768px) {
-      .status-banner {
+      .banner-content {
         padding: 10px 16px;
       }
     }

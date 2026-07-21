@@ -29,10 +29,12 @@ import { AnalyticsService } from './services/analytics.service';
         </div>
       </div>
     </nav>
-    <app-status-banner />
-    <main class="page-content">
-      <router-outlet />
-    </main>
+    <div class="app-content">
+      <app-status-banner />
+      <main class="page-content">
+        <router-outlet />
+      </main>
+    </div>
     <app-cookie-consent (consentGiven)="onConsent($event)"></app-cookie-consent>
   `,
   styles: [`
@@ -135,7 +137,7 @@ import { AnalyticsService } from './services/analytics.service';
       font-weight: 600;
     }
 
-    .page-content {
+    .app-content {
       padding-top: 64px;
     }
 
