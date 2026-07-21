@@ -32,6 +32,38 @@ jobs:
           fi
           echo "APP_VERSION=$VERSION" >> "$GITHUB_OUTPUT"
       - run: npm ci
+      - name: Validate banner configuration
+        env:
+          NG_BANNER_ENABLED: "${{ vars.NG_BANNER_ENABLED || secrets.NG_BANNER_ENABLED }}"
+          NG_BANNER_MESSAGE: "${{ vars.NG_BANNER_MESSAGE || secrets.NG_BANNER_MESSAGE }}"
+          NG_BANNER_TYPE: "${{ vars.NG_BANNER_TYPE || secrets.NG_BANNER_TYPE }}"
+        run: |
+          BANNER_ENABLED="${NG_BANNER_ENABLED:-false}"
+          BANNER_MESSAGE="${NG_BANNER_MESSAGE:-}"
+          BANNER_TYPE="${NG_BANNER_TYPE:-info}"
+
+          if [[ "$BANNER_ENABLED" != "true" && "$BANNER_ENABLED" != "false" ]]; then
+            echo "::error::NG_BANNER_ENABLED must be true or false"
+            exit 1
+          fi
+
+          if [[ "$BANNER_ENABLED" == "true" && -z "$BANNER_MESSAGE" ]]; then
+            echo "::error::NG_BANNER_MESSAGE must be configured when the banner is enabled"
+            exit 1
+          fi
+
+          if [[ "$BANNER_TYPE" != "info" && "$BANNER_TYPE" != "warning" && "$BANNER_TYPE" != "success" ]]; then
+            echo "::error::NG_BANNER_TYPE must be info, warning, or success"
+            exit 1
+          fi
+
+          if [[ -n "$BANNER_MESSAGE" ]]; then
+            MESSAGE_CONFIGURED="true"
+          else
+            MESSAGE_CONFIGURED="false"
+          fi
+
+          echo "Banner configuration valid: enabled=$BANNER_ENABLED type=$BANNER_TYPE message_configured=$MESSAGE_CONFIGURED"
       - run: npm run build:prod
         env:
           NG_API_URL: ${{ secrets.NG_API_URL }}
@@ -44,6 +76,9 @@ jobs:
           NG_ADSENSE_SLOT_ID: ${{ secrets.NG_ADSENSE_SLOT_ID }}
           NG_STORAGE_PREFIX: ${{ secrets.NG_STORAGE_PREFIX }}
           NG_APP_VERSION: ${{ steps.version.outputs.APP_VERSION }}
+          NG_BANNER_ENABLED: "${{ vars.NG_BANNER_ENABLED || secrets.NG_BANNER_ENABLED }}"
+          NG_BANNER_MESSAGE: "${{ vars.NG_BANNER_MESSAGE || secrets.NG_BANNER_MESSAGE }}"
+          NG_BANNER_TYPE: "${{ vars.NG_BANNER_TYPE || secrets.NG_BANNER_TYPE }}"
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
