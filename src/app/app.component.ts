@@ -2,12 +2,13 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { CookieConsentComponent } from './components/cookie-consent/cookie-consent.component';
+import { StatusBannerComponent } from './components/status-banner/status-banner.component';
 import { AnalyticsService } from './services/analytics.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CookieConsentComponent],
+  imports: [RouterOutlet, RouterLink, CookieConsentComponent, StatusBannerComponent],
   template: `
     <nav class="navbar">
       <div class="navbar-content">
@@ -28,6 +29,7 @@ import { AnalyticsService } from './services/analytics.service';
         </div>
       </div>
     </nav>
+    <app-status-banner />
     <main class="page-content">
       <router-outlet />
     </main>
