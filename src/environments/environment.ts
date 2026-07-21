@@ -20,4 +20,10 @@ export const environment = {
 
   // Storage key prefix (for localStorage)
   storagePrefix: 'disposaMail_',
+
+  banner: {
+    enabled: true,
+    message: 'We experienced a brief service disruption. Everything is back to normal now.',
+    type: 'success' as 'info' | 'warning' | 'success',
+  },
 };
