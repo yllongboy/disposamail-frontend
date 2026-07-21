@@ -25,6 +25,7 @@ src/
 │   │   ├── inbox-generator/      # Lottery animation + domain dropdown + CTA
 │   │   ├── inbox-dropdown/       # Custom animated dropdown (not native <select>)
 │   │   ├── ad-banner/            # Optional AdSense placement
+│   │   ├── status-banner/        # Dismissible build-time status announcement
 │   │   └── cookie-consent/       # GDPR consent banner
 │   ├── models/
 │   │   └── email.model.ts        # All TypeScript interfaces (Email, Inbox, etc.)
@@ -71,6 +72,13 @@ The generator component has a `displayMode` input: `'full' | 'hero' | 'controls'
 - `hero` — Only the lottery character animation (shown in the hero headline)
 - `controls` — Only the domain dropdown + generate button (shown in the card)
 - `full` — Both together (legacy, not currently used)
+
+### Status Banner
+The root-level status banner renders between the fixed navbar and the main page content. It is configured by `environment.banner.enabled`, `environment.banner.message`, and `environment.banner.type`.
+- Supported types: `info | warning | success`
+- The banner is hidden when `enabled` is `false` or `message` is empty
+- Dismissal is scoped to the current browser session via `sessionStorage`
+- The dismissal key includes a hash of the message, so a changed announcement is shown again
 
 ### Custom Dropdown (NOT native select)
 The domain dropdown in `inbox-generator` is a custom-built dropdown with:
@@ -159,8 +167,23 @@ All tunable values are in `src/environments/environment.ts`. No hardcoded brand 
 | `adsensePublisherId` | AdSense pub ID (empty = disabled) |
 | `adsenseSlotId` | AdSense ad slot ID |
 | `storagePrefix` | localStorage key prefix |
+| `banner.enabled` | Whether the status banner is enabled |
+| `banner.message` | Status announcement text (empty = hidden) |
+| `banner.type` | Banner style: `info`, `warning`, or `success` |
 
 Components read these via `import { environment } from '...environments/environment'`.
+
+### Production Environment Variables
+
+Production builds run `scripts/set-env.js` to generate `src/environments/environment.prod.ts` from build-time environment variables.
+
+| Variable | Values | Default | Purpose |
+|----------|--------|---------|---------|
+| `NG_BANNER_ENABLED` | `true` / `false` | `false` | Enables the status banner |
+| `NG_BANNER_MESSAGE` | Text | Empty | Sets the announcement message |
+| `NG_BANNER_TYPE` | `info` / `warning` / `success` | `info` | Sets the banner style |
+
+These variables are embedded at build time. Changing them requires rebuilding and redeploying the frontend; they do not update an already running static build.
 
 ## API Contract
 
